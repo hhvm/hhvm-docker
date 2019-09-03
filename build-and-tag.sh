@@ -23,7 +23,12 @@ if echo "$VERSION" | $GREP -q '^\d{4}\.\d{2}\.\d{2}$'; then
 else
   HHVM_PACKAGE="hhvm=${VERSION}-*"
   MAJ_MIN=$(echo "$VERSION" | cut -f1,2 -d.)
-  HHVM_REPO_DISTRO="bionic-${MAJ_MIN}"
+  if [ "${MAJ_MIN}" == "3.30" ]; then
+    # old repo naming scheme
+    HHVM_REPO_DISTRO="bionic-lts-${MAJ_MIN}"
+  else
+    HHVM_REPO_DISTRO="bionic-${MAJ_MIN}"
+  fi
   (git checkout "${MAJ_MIN}-lts" || git checkout "$MAJ_MIN" || true) 2>/dev/null
 fi
 
