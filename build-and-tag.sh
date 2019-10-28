@@ -19,14 +19,22 @@ fi
 
 if echo "$VERSION" | $GREP -q '^\d{4}\.\d{2}\.\d{2}$'; then
   HHVM_PACKAGE="hhvm-nightly=${VERSION}-*"
+  HHVM_REPO_DISTRO=bionic
 else
   HHVM_PACKAGE="hhvm=${VERSION}-*"
   MAJ_MIN=$(echo "$VERSION" | cut -f1,2 -d.)
-  (git checkout "${MAJ_MIN}-lts" || git checkout "$MAJ_MIN" || true) 2>/dev/null
+  if [ "${MAJ_MIN}" == "3.30" ]; then
+    # old repo naming scheme
+    HHVM_REPO_DISTRO="bionic-lts-${MAJ_MIN}"
+  else
+    HHVM_REPO_DISTRO="bionic-${MAJ_MIN}"
+  fi
+  git checkout "origin/HHVM-$MAJ_MIN" 2>/dev/null
 fi
 
 docker build \
   --build-arg "HHVM_PACKAGE=$HHVM_PACKAGE" \
+  --build-arg "HHVM_REPO_DISTRO=$HHVM_REPO_DISTRO" \
   -t "hhvm/hhvm:$VERSION" \
   hhvm-latest/
 
